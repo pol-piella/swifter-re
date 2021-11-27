@@ -11,13 +11,17 @@ enum SwifterRe {
         let range = NSRange(location: .zero, length: text.utf8.count)
         
         return re.matches(in: text, range: range).map { result in
-            let groups = (1..<result.numberOfRanges).map { index -> Group in
-                let groupRange = result.range(at: index)
-                let outputText = text[Range(groupRange, in: text)!]
-                return Group(position: index - 1, value: String(outputText))
-            }
+            let groups = shouldMatchGroups ? Self.matchGroups(result: result, text: text) : []
             let matchedString = String(text[Range(result.range, in: text)!])
             return Match(match: matchedString, groups: groups)
+        }
+    }
+    
+    private static func matchGroups(result: NSTextCheckingResult, text: String) -> [Group] {
+        (1..<result.numberOfRanges).map { index -> Group in
+            let groupRange = result.range(at: index)
+            let outputText = text[Range(groupRange, in: text)!]
+            return Group(position: index - 1, value: String(outputText))
         }
     }
 }
