@@ -10,11 +10,33 @@ enum SwifterRe {
         let re = try NSRegularExpression(pattern: pattern, options: options ?? [])
         let range = NSRange(location: .zero, length: text.utf8.count)
         
-        return re.matches(in: text, range: range).map { result in
-            let groups = shouldMatchGroups ? Self.matchGroups(result: result, text: text) : []
-            let matchedString = String(text[Range(result.range, in: text)!])
-            return Match(match: matchedString, groups: groups)
+        return re.matches(in: text, range: range).map { Self.adapt(result: $0, in: text) }
+    }
+    
+    static func enumerating(
+        in text: String,
+        matching pattern: String,
+        stopOn: (Match) -> Bool,
+        options: NSRegularExpression.Options? = nil,
+        shouldMatchGroups: Bool = true
+    ) throws {
+        let re = try NSRegularExpression(pattern: pattern, options: options ?? [])
+        let range = NSRange(location: .zero, length: text.utf8.count)
+        
+        re.enumerateMatches(in: text, range: range) { result, _, stop in
+            guard let result = result else { return }
+            let match = self.adapt(result: result, in: text)
+            
+            stop.pointee = ObjCBool(stopOn(match)) // Stop if condition is met
         }
+    }
+    
+    // MARK: - Helpers
+    
+    private static func adapt(result: NSTextCheckingResult, in text: String, matchingGroups: Bool = true) -> Match {
+        let groups = matchingGroups ? Self.matchGroups(result: result, text: text) : []
+        let matchedString = String(text[Range(result.range, in: text)!])
+        return Match(match: matchedString, groups: groups)
     }
     
     private static func matchGroups(result: NSTextCheckingResult, text: String) -> [Group] {

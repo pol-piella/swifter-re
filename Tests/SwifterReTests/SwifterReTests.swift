@@ -41,6 +41,19 @@ final class SwifterReTests: XCTestCase {
         expect(thatResultingMatches: try SwifterRe.findMatches(in: testString, matching: re), matchExpectedMatches: expectedMatches)
     }
     
+    func testThatEnumerateMatchesStopsWhenConditionIsMet() throws {
+        let re = #"I love (.ats).*(.ogs)"#
+        let stopPoint = Match(match: "I love cats and dogs", groups: [Group(position: .zero, value: "cats"), Group(position: 1, value: "dogs")])
+        var capturedMatches = [Match]()
+        
+        try SwifterRe.enumerating(in: testString, matching: re) { match in
+            capturedMatches.append(match)
+            return match.groups == stopPoint.groups
+        }
+        
+        expect(thatResultingMatches: [stopPoint], matchExpectedMatches: capturedMatches)
+    }
+    
     // MARK: - Helpers
     
     private func expect(thatResultingMatches matches: [Match], matchExpectedMatches expectedMatches: [Match]) {
