@@ -13,6 +13,19 @@ enum SwifterRe {
         return re.matches(in: text, range: range).map { Self.adapt(result: $0, in: text) }
     }
     
+    static func findFirstMatch(
+        in text: String,
+        matching pattern: String,
+        options: NSRegularExpression.Options? = nil,
+        shouldMatchGroups: Bool = true
+    ) throws -> Match? {
+        let re = try NSRegularExpression(pattern: pattern, options: options ?? [])
+        let range = NSRange(location: .zero, length: text.utf8.count)
+        guard let result = re.firstMatch(in: text, range: range) else { return nil }
+        
+        return Self.adapt(result: result, in: text)
+    }
+    
     static func enumerating(
         in text: String,
         matching pattern: String,
