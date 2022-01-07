@@ -8,7 +8,7 @@ enum SwifterRe {
         shouldMatchGroups: Bool = true
     ) throws -> [Match] {
         let re = try NSRegularExpression(pattern: pattern, options: options ?? [])
-        let range = NSRange(location: .zero, length: text.utf8.count)
+        let range = NSRange(location: .zero, length: text.utf16.count)
         
         return re.matches(in: text, range: range).map { Self.adapt(result: $0, in: text) }
     }
