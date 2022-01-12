@@ -29,7 +29,7 @@ enum SwifterRe {
     static func enumerating(
         in text: String,
         matching pattern: String,
-        stopOn: (Match) -> Bool,
+        stopOn: @escaping (Match) -> Bool,
         options: NSRegularExpression.Options? = nil,
         shouldMatchGroups: Bool = true
     ) throws {
